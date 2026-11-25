@@ -178,7 +178,34 @@ public class BigramModel {
      * @pre: fileName is a legal file path
      */
     public void loadModel(String fileName) throws IOException { // Question 4
-        // TODO: implement
+        BufferedReader vocReader = new BufferedReader(new FileReader(fileName + VOC_FILE_SUFFIX));
+        BufferedReader countReader = new BufferedReader(new FileReader(fileName + COUNTS_FILE_SUFFIX));
+        String line = vocReader.readLine();
+        String numSt = line.split(" ")[0];
+        int size = Integer.parseInt(numSt); 
+        String [] newVoc = new String [size];
+        for (int i = 0; i < size; i++){
+            String currWord = vocReader.readLine();
+            currWord = currWord.split(",",2)[1];
+            newVoc[i] = currWord;
+        }
+        vocReader.close();
+        int [][] newCount = new int [size][size];
+        line = countReader.readLine();
+        while(line != null){
+            String iString = line.split(",")[0];
+            int i = Integer.parseInt(iString);
+            String jString = line.split(",")[1];
+            jString = jString.split(":")[0];
+            int j = Integer.parseInt(jString);
+            String valueString = line.split(":")[1];
+            int value = Integer.parseInt(valueString);
+            newCount[i][j] = value;
+            line = countReader.readLine();
+        }
+        countReader.close();
+        mVocabulary = newVoc;
+        mBigramCounts = newCount;
     }
 
     /*
@@ -188,8 +215,25 @@ public class BigramModel {
      * @post: if sentence is probable, according to the model, $ret = true, else, $ret = false
      */
     public boolean isLegalSentence(String sentence) { // Question 5
-        // TODO: implement
-        return false;
+        if (sentence.isEmpty()) {
+            return true;
+        }
+        String [] tokens = sentence.trim().split(" ");
+        int [] indexes = new int[tokens.length];
+        for (int i = 0; i < tokens.length; i++){
+            int index = findIndex(mVocabulary, tokens[i]);
+            indexes[i] = index;
+            if (index == ELEMENT_NOT_FOUND){
+                return false;
+            }
+        }
+        //all words are legal and in the vocabulary
+        for (int i = 0; i < tokens.length-1; i++){
+            if (mBigramCounts[indexes[i]][indexes[i+1]] == 0){
+                return false;
+            } 
+        }
+        return true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
