@@ -33,7 +33,7 @@ public class NaiveInventory implements Inventory {
 	@Override
 	public float getTotalWeight() {
 		float totalWeight = 0;
-		for (int i = 0; i < this.collectibles.length; i++){
+		for (int i = 0; i < this.amount; i++){
 			totalWeight += this.collectibles[i].getWeight();
 		}
 		return totalWeight;
